@@ -1,0 +1,106 @@
+--ALU
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity alu is
+    Port (
+        inp_a   : in  signed(3 downto 0);
+        inp_b   : in  signed(3 downto 0);
+        sel     : in  STD_LOGIC_VECTOR(1 downto 0);
+        out_alu : out signed(3 downto 0)
+    );
+end alu;
+
+architecture Behavioral of alu is
+begin
+
+    process(inp_a, inp_b, sel)
+    begin
+        case sel is
+
+            when "00" =>
+                out_alu <= inp_a and inp_b;  -- AND gate
+
+            when "01" =>
+                out_alu <= inp_a or inp_b;   -- OR gate
+
+            when "10" =>
+                out_alu <= inp_a + inp_b;    -- ADD
+
+            when "11" =>
+                out_alu <= inp_a xor inp_b;  -- XOR gate
+
+            when others =>
+                NULL;
+
+        end case;
+    end process;
+
+end Behavioral;
+
+--- testbench
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity Tb_alu is
+end Tb_alu;
+
+architecture behavior of Tb_alu is
+
+    -- Component Declaration for the Unit Under Test (UUT)
+    component alu
+        Port (
+            inp_a   : in  signed(3 downto 0);
+            inp_b   : in  signed(3 downto 0);
+            sel     : in  std_logic_vector(1 downto 0);
+            out_alu : out signed(3 downto 0)
+        );
+    end component;
+
+    -- Inputs
+    signal inp_a : signed(3 downto 0) := (others => '0');
+    signal inp_b : signed(3 downto 0) := (others => '0');
+    signal sel   : std_logic_vector(1 downto 0) := (others => '0');
+
+    -- Output
+    signal out_alu : signed(3 downto 0);
+
+begin
+
+    -- Instantiate the Unit Under Test (UUT)
+    uut: alu
+        port map (
+            inp_a   => inp_a,
+            inp_b   => inp_b,
+            sel     => sel,
+            out_alu => out_alu
+        );
+
+    -- Stimulus process
+    stim_proc: process
+    begin
+
+        -- Apply input values
+        wait for 100 ns;
+
+        inp_a <= "1001";
+        inp_b <= "1111";
+
+        sel <= "00";
+        wait for 100 ns;
+
+        sel <= "01";
+        wait for 100 ns;
+
+        sel <= "10";
+        wait for 100 ns;
+
+        sel <= "11";
+        wait for 100 ns;
+
+        
+    end process;
+
+end behavior;

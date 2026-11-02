@@ -1,0 +1,91 @@
+VHDL CODE FOR MODNCOUNTER
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity mod_n_counter is
+    Generic (
+        N : integer := 10;          -- Modulo value (e.g., Mod-10)
+        WIDTH : integer := 4        -- Number of bits required
+    );
+    Port (
+        clk   : in  STD_LOGIC;
+        reset : in  STD_LOGIC;
+        q     : out STD_LOGIC_VECTOR(WIDTH - 1 downto 0)
+    );
+end mod_n_counter;
+
+architecture Behavioral of mod_n_counter is
+    signal count_reg : unsigned(WIDTH - 1 downto 0) := (others => '0');
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            count_reg <= (others => '0');
+        elsif rising_edge(clk) then
+            if count_reg = N - 1 then
+                count_reg <= (others => '0');
+            else
+                count_reg <= count_reg + 1;
+            end if;
+        end if;
+    end process;
+
+    q <= std_logic_vector(count_reg);
+end Behavioral;
+
+
+
+
+TEST BENCH FOR MODNCOUNTER
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity tb_mod_n_counter is
+end tb_mod_n_counter;
+
+architecture sim of tb_mod_n_counter is
+    constant N_VAL : integer := 10;
+    constant WIDTH_VAL : integer := 4;
+    constant CLK_PERIOD : time := 10 ns;
+
+    signal clk   : STD_LOGIC := '0';
+    signal reset : STD_LOGIC := '1';
+    signal q     : STD_LOGIC_VECTOR(WIDTH_VAL - 1 downto 0);
+begin
+    -- Instantiate the Unit Under Test (UUT)
+    uut: entity work.mod_n_counter
+        generic map (
+            N => N_VAL,
+            WIDTH => WIDTH_VAL
+        )
+        port map (
+            clk   => clk,
+            reset => reset,
+            q     => q
+        );
+
+    -- Clock generation process
+    clk_process: process
+    begin
+        clk <= '0';
+        wait for CLK_PERIOD / 2;
+        clk <= '1';
+        wait for CLK_PERIOD / 2;
+    end process;
+
+    -- Stimulus process
+    stim_process: process
+    begin
+        reset <= '1';
+        wait for 20 ns;
+        reset <= '0';
+        wait for 150 ns; -- Allow counter to loop through cycles
+        reset <= '1';    -- Test asynchronous/synchronous reset behavior
+        wait for 20 ns;
+        reset <= '0';
+        wait;
+    end process;
+end sim;
